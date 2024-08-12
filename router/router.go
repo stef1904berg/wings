@@ -117,6 +117,13 @@ func Configure(m *wserver.Manager, client remote.Client) *gin.Engine {
 			backup.POST("/:backup/restore", postServerRestoreBackup)
 			backup.DELETE("/:backup", deleteServerBackup)
 		}
+
+		network := server.Group("/networks")
+		{
+			network.GET("", getNetworks)
+			network.POST("/join", postJoinNetwork)
+			network.POST("/leave", postLeaveNetwork)
+		}
 	}
 
 	return router
