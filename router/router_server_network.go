@@ -52,6 +52,7 @@ func postJoinNetwork(c *gin.Context) {
 
 	container, err := cli.ContainerInspect(c, server.ID())
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "container does not exist"})
 		return
 	}
 
@@ -61,10 +62,14 @@ func postJoinNetwork(c *gin.Context) {
 
 	network, err := cli.NetworkInspect(c, networkInfo.NetworkID, types.NetworkInspectOptions{})
 	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "network does not exist: " + err.Error()})
 		return
 	}
 
 	err = cli.NetworkConnect(c, network.ID, container.ID, nil)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "error adding container to network: " + err.Error()})
+	}
 }
 
 // Makes a server leave a network
@@ -77,6 +82,7 @@ func postLeaveNetwork(c *gin.Context) {
 
 	container, err := cli.ContainerInspect(c, server.ID())
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "container doesnt exist"})
 		return
 	}
 
@@ -86,8 +92,12 @@ func postLeaveNetwork(c *gin.Context) {
 
 	network, err := cli.NetworkInspect(c, networkInfo.NetworkID, types.NetworkInspectOptions{})
 	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "network does not exist"})
 		return
 	}
 
 	err = cli.NetworkDisconnect(c, network.ID, container.ID, false)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "error removing container from network: " + err.Error()})
+	}
 }

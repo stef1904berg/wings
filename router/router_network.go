@@ -64,12 +64,13 @@ func postCreateNetwork(c *gin.Context) {
 	})
 	if err != nil {
 		log.Debug(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Could not create network"})
 		return
 	}
 
 	// Returns created network information back to the panel
 	// Mainly for the NetworkID as the panel will use that in all other network requests
-	log.Info("created network: " + network.Name)
+
 	c.JSON(http.StatusOK, APIResponse{
 		Name:      network.Name,
 		Driver:    network.Driver,
