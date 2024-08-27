@@ -20,18 +20,18 @@ func getNetworks(c *gin.Context) {
 	if err != nil {
 	}
 
-	networks := make([]APIResponse, len(container.NetworkSettings.Networks))
+	networks := make([]Network, len(container.NetworkSettings.Networks))
 	i := 0 // .Networks doesn't have an index, so make our own.
 	for _, v := range container.NetworkSettings.Networks {
 
 		// Gets basic information about the network, as the container does not contain
-		// network information like the driver.
+		// network information like the name and driver.
 		network, err := cli.NetworkInspect(c, v.NetworkID, types.NetworkInspectOptions{})
 		if err != nil {
 			continue
 		}
 
-		networks[i] = APIResponse{
+		networks[i] = Network{
 			Name:      network.Name,
 			Driver:    network.Driver,
 			NetworkID: network.ID,
@@ -58,6 +58,7 @@ func postJoinNetwork(c *gin.Context) {
 
 	var networkInfo Network
 	if err := c.BindJSON(&networkInfo); err != nil {
+		return
 	}
 
 	network, err := cli.NetworkInspect(c, networkInfo.NetworkID, types.NetworkInspectOptions{})
@@ -68,7 +69,7 @@ func postJoinNetwork(c *gin.Context) {
 
 	err = cli.NetworkConnect(c, network.ID, container.ID, nil)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "error adding container to network: " + err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"message": "unable to add container to network: " + err.Error()})
 	}
 }
 
@@ -88,6 +89,7 @@ func postLeaveNetwork(c *gin.Context) {
 
 	var networkInfo Network
 	if err := c.BindJSON(&networkInfo); err != nil {
+		return
 	}
 
 	network, err := cli.NetworkInspect(c, networkInfo.NetworkID, types.NetworkInspectOptions{})
@@ -98,6 +100,7 @@ func postLeaveNetwork(c *gin.Context) {
 
 	err = cli.NetworkDisconnect(c, network.ID, container.ID, false)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "error removing container from network: " + err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"message": "unable to remove container from network: " + err.Error()})
+		return
 	}
 }
