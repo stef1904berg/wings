@@ -207,6 +207,7 @@ func (m *Manager) InitServer(data remote.ServerConfigurationResponse) (*Server, 
 	settings := environment.Settings{
 		Mounts:      s.Mounts(),
 		Allocations: s.cfg.Allocations,
+		Networks:    s.cfg.Networks,
 		Limits:      s.cfg.Build,
 		Labels:      s.cfg.Labels,
 	}

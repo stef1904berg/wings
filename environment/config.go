@@ -7,6 +7,7 @@ import (
 type Settings struct {
 	Mounts      []Mount
 	Allocations Allocations
+	Networks    []string
 	Limits      Limits
 	Labels      map[string]string
 }
@@ -59,6 +60,14 @@ func (c *Configuration) Allocations() Allocations {
 	defer c.mu.RUnlock()
 
 	return c.settings.Allocations
+}
+
+// Returns all networks id's associated with this environment
+func (c *Configuration) Networks() []string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	return c.settings.Networks
 }
 
 // Returns all of the mounts associated with this environment.

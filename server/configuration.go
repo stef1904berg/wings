@@ -50,6 +50,7 @@ type Configuration struct {
 	Labels map[string]string `json:"labels"`
 
 	Allocations           environment.Allocations `json:"allocations"`
+	Networks              []string                `json:"networks"`
 	Build                 environment.Limits      `json:"build"`
 	CrashDetectionEnabled bool                    `json:"crash_detection_enabled"`
 	Mounts                []Mount                 `json:"mounts"`

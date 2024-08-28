@@ -27,6 +27,7 @@ func (s *Server) SyncWithEnvironment() {
 	s.Environment.Config().SetSettings(environment.Settings{
 		Mounts:      s.Mounts(),
 		Allocations: cfg.Allocations,
+		Networks:    cfg.Networks,
 		Limits:      cfg.Build,
 		Labels:      cfg.Labels,
 	})
