@@ -257,8 +257,16 @@ func (e *Environment) Create() error {
 		UsernsMode:  container.UsernsMode(cfg.Docker.UsernsMode),
 	}
 
-	if _, err := e.client.ContainerCreate(ctx, conf, hostConf, nil, nil, e.Id); err != nil {
+	c, err := e.client.ContainerCreate(ctx, conf, hostConf, nil, nil, e.Id)
+	if err != nil {
 		return errors.Wrap(err, "environment/docker: failed to create container")
+	}
+	// Only after the container is created we can start joining networks.
+	for _, networkId := range e.Configuration.Networks() {
+		err := e.client.NetworkConnect(ctx, networkId, c.ID, nil)
+		if err != nil {
+			log.Warn("environment/docker: failed to join network " + networkId)
+		}
 	}
 
 	return nil
